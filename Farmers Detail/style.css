@@ -10,6 +10,55 @@
   --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    margin-bottom: 30px;
+    box-shadow: var(--box-shadow);
+}
+
+.hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: white;
+}
+
+.hero-overlay h2 {
+    color: white !important;
+    font-size: 1.8rem;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-overlay h2::before { display: none; }
+
+.officer-item {
+    background: #fff;
+    padding: 15px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e8f5e9;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.officer-info b { color: var(--primary-color); }
+.officer-info span { font-size: 0.9rem; color: #666; }
+
 * {
   box-sizing: border-box;
   margin: 0;

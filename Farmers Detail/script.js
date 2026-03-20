@@ -15,6 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
         logo: null
     };
 
+    // Migration for existing data
+    if (!db.finance) db.finance = { transactions: [] };
+    if (!db.finance.transactions) db.finance.transactions = [];
+    if (!db.society) db.society = { president: {}, secretary: {}, treasurer: {}, general: {} };
+    if (!db.society.general) db.society.general = {};
+
     // UI Elements
     const sections = document.querySelectorAll('.section');
     const navBtns = document.querySelectorAll('.nav-btn');
@@ -277,10 +283,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (db.farmers.length === 0) return alert('පණිවිඩය යැවීමට ගොවීන් නොමැත');
         
+        // Open the first farmer's WA as a start, or suggest using the list
         const firstFarmer = db.farmers[0];
         const waLink = `https://wa.me/${firstFarmer.telMain.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
         window.open(waLink, '_blank');
-        alert(`${firstFarmer.name} සඳහා WhatsApp විවෘත විය. අනෙක් අයට ගොවි ලේඛනයෙන් ලබාගත හැක.`);
+        
+        // Also open for officers if requested
+        if (confirm('සමිතියේ නිලධාරීන්ටත් මෙම පණිවිඩය යැවීමට අවශ්‍යද?')) {
+            const officer = db.society.president;
+            if (officer && officer.tel) {
+                setTimeout(() => {
+                    const offLink = `https://wa.me/${officer.tel.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+                    window.open(offLink, '_blank');
+                }, 1000);
+            }
+        }
+
+        alert(`පණිවිඩය යැවීම ආරම්භ විය. වගුවේ ඇති WhatsApp බොත්තම් මගින් අනෙක් අයටද යැවිය හැක.`);
     });
 
     document.getElementById('send-officers-wa').addEventListener('click', () => {
@@ -431,7 +450,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const row = `
                 <tr>
-                    <td>${f.name}</td>
+                    <td>
+                        ${f.name}
+                        ${arrearsInfo.total > 0 ? '<i class="fas fa-exclamation-circle" style="color:#f44336; margin-left:5px;" title="හිඟ මුදල් ඇත"></i>' : '<i class="fas fa-check-circle" style="color:#4caf50; margin-left:5px;"></i>'}
+                    </td>
                     <td>${paddy.name}</td>
                     <td>${arrearsText}</td>
                     <td>${f.telMain}</td>
@@ -444,6 +466,25 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             summaryList.insertAdjacentHTML('beforeend', row);
         });
+
+        // Render Officers Summary on Home Page
+        const offSummary = document.getElementById('officers-summary');
+        if (offSummary && db.society) {
+            const officers = [
+                { role: 'සභාපති', ...db.society.president },
+                { role: 'ලේකම්', ...db.society.secretary },
+                { role: 'භාණ්ඩාගාරික', ...db.society.treasurer }
+            ];
+            offSummary.innerHTML = officers.map(o => `
+                <div class="officer-item">
+                    <div class="officer-info">
+                        <b>${o.role}:</b> ${o.name || '---'}<br>
+                        <span><i class="fas fa-phone"></i> ${o.tel || '---'}</span>
+                    </div>
+                    ${o.tel ? `<a href="https://wa.me/${o.tel.replace(/\D/g, '')}" class="btn-whatsapp" target="_blank" style="padding: 8px 12px;"><i class="fab fa-whatsapp"></i></a>` : ''}
+                </div>
+            `).join('');
+        }
 
         // Render Finance Section
         if (db.finance) {
